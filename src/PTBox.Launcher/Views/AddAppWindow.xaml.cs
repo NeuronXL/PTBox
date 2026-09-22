@@ -1,4 +1,3 @@
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -38,7 +37,7 @@ public partial class AddAppWindow : Window
     {
         var picker = new FilePickerWindow(false) { Owner=this };
         if (picker.ShowDialog() != true) return;
-        Result = new() { Name=Path.GetFileNameWithoutExtension(picker.SelectedPath!), Path=picker.SelectedPath!, Category="apps" }; DialogResult=true;
+        Result = picker.SelectedApp; DialogResult=true;
     }
     private void ChooseWebsite(object sender, RoutedEventArgs e)
     { Result = new() { Name="新网页", Type="url", Category="apps", LaunchBehavior="fireAndForget", ReuseExisting=false }; DialogResult=true; }

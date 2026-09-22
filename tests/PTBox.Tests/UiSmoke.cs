@@ -283,7 +283,7 @@ internal static class UiSmoke
                     var vm=(FilePickerViewModel)picker.DataContext;
                     var loading=vm.NavigateAsync(folder); PumpUntil(()=>loading.IsCompleted,TimeSpan.FromSeconds(5)); loading.GetAwaiter().GetResult();
                     var list=(ListBox)picker.FindName("FileList");
-                    list.SelectedItem=vm.Entries.Single(x=>!x.IsDirectory); Pump();
+                    list.SelectedItem=vm.Entries.Single(x=>x.Name=="程序.EXE"); Pump();
                     RenderWindowContent(picker,Path.Combine(output,"file-picker.png"),1140,760);
                     var path=(TextBox)picker.FindName("FilePath"); path.Text=Path.Combine(folder,"说明.txt");
                     ((Button)picker.FindName("SelectButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -297,6 +297,35 @@ internal static class UiSmoke
         }));
         var result=add.ShowDialog(); if(error!=null) throw error;
         Assert(result==true && add.Result?.Path==Path.Combine(folder,"程序.EXE") && add.Result.Name=="程序","添加本地程序应接收文件选择结果");
+
+        foreach (var name in new[] { "桌面程序.LNK", "游戏.URL" })
+        {
+            var shortcutAdd = new AddAppWindow([]) { Owner=owner };
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(() =>
+            {
+                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(() =>
+                {
+                    var picker=app.Windows.OfType<FilePickerWindow>().Single();
+                    try
+                    {
+                        var vm=(FilePickerViewModel)picker.DataContext;
+                        var loading=vm.NavigateAsync(folder); PumpUntil(()=>loading.IsCompleted,TimeSpan.FromSeconds(5)); loading.GetAwaiter().GetResult();
+                        Assert(vm.Entries.Any(x=>x.Name==name),"文件列表应显示桌面快捷方式");
+                        var path=(TextBox)picker.FindName("FilePath");
+                        var invalid=Path.Combine(folder,"invalid.URL"); File.WriteAllText(invalid,"[InternetShortcut]\nURL=javascript:alert(1)");
+                        path.Text=invalid; ((Button)picker.FindName("SelectButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                        Assert(picker.IsVisible && picker.SelectedApp==null && vm.Status.Contains("不支持"),"无效快捷方式应留在选择器并显示错误");
+                        path.Text=Path.Combine(folder,name); path.Focus(); Key(picker,System.Windows.Input.Key.Enter);
+                    }
+                    catch(Exception ex) { error=ex; picker.Close(); }
+                }));
+                ((Button)shortcutAdd.FindName("LocalButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                if(error!=null) shortcutAdd.Close();
+            }));
+            var accepted=shortcutAdd.ShowDialog(); if(error!=null) throw error;
+            Assert(accepted==true && shortcutAdd.Result?.Name==Path.GetFileNameWithoutExtension(name),"快捷方式名称应进入添加草稿");
+            Assert(shortcutAdd.Result!.Path==(name.EndsWith(".LNK") ? Path.Combine(folder,name) : "steam://rungameid/123"),"正确保存快捷方式路径或游戏协议");
+        }
 
         var images=new FilePickerWindow(true,folder) { Owner=owner };
         Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(() =>

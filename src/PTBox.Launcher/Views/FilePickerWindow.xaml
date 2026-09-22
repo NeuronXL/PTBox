@@ -11,9 +11,10 @@
     </Grid>
     <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="194"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
       <Border Background="#75172638" CornerRadius="18" Padding="12"><StackPanel>
-        <StackPanel.Resources><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Height" Value="44"/><Setter Property="MinHeight" Value="44"/><Setter Property="Padding" Value="8"/><Setter Property="Margin" Value="2"/><Setter Property="FontSize" Value="18"/></Style></StackPanel.Resources>
+        <StackPanel.Resources><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Height" Value="36"/><Setter Property="MinHeight" Value="36"/><Setter Property="Padding" Value="4"/><Setter Property="Margin" Value="2"/><Setter Property="FontSize" Value="18"/></Style></StackPanel.Resources>
         <TextBlock Text="常用位置" FontSize="18" Foreground="#AFC1D3" Margin="8,2,0,8"/>
         <Button Content="桌面" Tag="DesktopDirectory" Click="Shortcut"/>
+        <Button Content="公共桌面" Tag="CommonDesktopDirectory" Click="Shortcut"/>
         <Button Content="文档" Tag="MyDocuments" Click="Shortcut"/>
         <Button Content="图片" Tag="MyPictures" Click="Shortcut"/>
         <Button Content="用户目录" Tag="UserProfile" Click="Shortcut"/>

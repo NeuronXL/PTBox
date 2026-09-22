@@ -27,7 +27,11 @@ public static class AppIconService
     {
         try
         {
-            if (item.Type == "exe") return Extract(PathService.ResolveExecutable(item.Path,dataDirectory));
+            if (item.Type == "exe")
+            {
+                var path = PathService.ResolveExecutable(item.Path,dataDirectory);
+                return Path.GetExtension(path).Equals(".lnk",StringComparison.OrdinalIgnoreCase) ? ExtractShortcut(path) : Extract(path);
+            }
             if (item.Type != "uri" || !Uri.TryCreate(item.Path,UriKind.Absolute,out var uri)) return null;
             var location = Association(uri.Scheme,15); // ASSOCSTR_DEFAULTICON
             if (!string.IsNullOrWhiteSpace(location))
@@ -61,6 +65,35 @@ public static class AppIconService
         }
         finally { if(large!=IntPtr.Zero) DestroyIcon(large); if(small!=IntPtr.Zero) DestroyIcon(small); }
     }
+    private static ImageSource? ExtractShortcut(string path)
+    {
+        var key=path+"|shortcut|"+File.GetLastWriteTimeUtc(path).Ticks;
+        if (Icons.TryGetValue(key,out var cached)) return cached;
+        // SHGetFileInfo requires COM on the background thread; an existing STA is also usable.
+        var com = CoInitializeEx(IntPtr.Zero,0);
+        if (com < 0 && com != unchecked((int)0x80010106)) return null; // RPC_E_CHANGED_MODE
+        ShellFileInfo info = default;
+        try
+        {
+            if (SHGetFileInfo(path,0,out info,(uint)Marshal.SizeOf<ShellFileInfo>(),0x100)==IntPtr.Zero || info.Icon==IntPtr.Zero) return null;
+            var image=Imaging.CreateBitmapSourceFromHIcon(info.Icon,Int32Rect.Empty,BitmapSizeOptions.FromEmptyOptions());
+            image.Freeze(); Icons[key]=image; return image;
+        }
+        finally { if(info.Icon!=IntPtr.Zero) DestroyIcon(info.Icon); if(com>=0) CoUninitialize(); }
+    }
+    [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)]
+    private struct ShellFileInfo
+    {
+        public IntPtr Icon;
+        public int IconIndex;
+        public uint Attributes;
+        [MarshalAs(UnmanagedType.ByValTStr,SizeConst=260)] public string DisplayName;
+        [MarshalAs(UnmanagedType.ByValTStr,SizeConst=80)] public string TypeName;
+    }
+    [DllImport("shell32.dll",EntryPoint="SHGetFileInfoW",CharSet=CharSet.Unicode)]
+    private static extern IntPtr SHGetFileInfo(string path,uint attributes,out ShellFileInfo info,uint size,uint flags);
+    [DllImport("ole32.dll")] private static extern int CoInitializeEx(IntPtr reserved,uint flags);
+    [DllImport("ole32.dll")] private static extern void CoUninitialize();
     [DllImport("shell32.dll",EntryPoint="SHDefExtractIconW",CharSet=CharSet.Unicode)]
     private static extern int SHDefExtractIcon(string path,int index,uint flags,out IntPtr large,out IntPtr small,uint size);
     [DllImport("shlwapi.dll",EntryPoint="AssocQueryStringW",CharSet=CharSet.Unicode)]

@@ -8,6 +8,36 @@ namespace PTBox.Launcher.Services;
 public sealed record LaunchResult(Process? Process, bool WaitForExit, bool Reused);
 public sealed class AppLaunchService(string dataDirectory, LoggingService log)
 {
+    public static LauncherItem FromLocalFile(string path)
+    {
+        path = Path.GetFullPath(path);
+        if (!File.Exists(path)) throw new FileNotFoundException("文件不存在，请重新选择。", path);
+        var extension = Path.GetExtension(path);
+        var item = new LauncherItem { Name = Path.GetFileNameWithoutExtension(path), Path = path, Category = "apps" };
+        if (extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) return item;
+        if (extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+        {
+            // Let Windows preserve the shortcut's arguments, working directory and shell target.
+            item.ReuseExisting = false; item.LaunchBehavior = "fireAndForget";
+            return item;
+        }
+        if (!extension.Equals(".url", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("请选择 EXE 程序或 LNK / URL 快捷方式。");
+        if (new FileInfo(path).Length > 1024 * 1024) throw new InvalidDataException("快捷方式文件过大，请重新选择。");
+        var inShortcut = false;
+        foreach (var line in File.ReadLines(path))
+        {
+            var value = line.Trim();
+            if (value.StartsWith('[')) { inShortcut = value.Equals("[InternetShortcut]", StringComparison.OrdinalIgnoreCase); continue; }
+            var equals = value.IndexOf('=');
+            if (!inShortcut || equals < 0 || !value[..equals].Trim().Equals("URL", StringComparison.OrdinalIgnoreCase)) continue;
+            item.Path = value[(equals + 1)..].Trim();
+            item.Type = Uri.TryCreate(item.Path, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" ? "url" : "uri";
+            item.Path = ValidateUri(item); item.ReuseExisting = false; item.LaunchBehavior = "fireAndForget";
+            return item;
+        }
+        throw new InvalidDataException("快捷方式缺少有效地址，请重新选择。");
+    }
     public async Task<LaunchResult> LaunchAsync(LauncherItem item)
     {
         log.Info($"启动应用 {item.Id} ({item.Type}, {item.LaunchBehavior})");
@@ -18,8 +48,14 @@ public sealed class AppLaunchService(string dataDirectory, LoggingService log)
             return new(null, false, false);
         }
         var path = PathService.ResolveExecutable(item.Path, dataDirectory);
+        if (Path.GetExtension(path).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+        {
+            // Shell links can open packaged apps or hand off to an existing process without returning a process.
+            var shortcutProcess = Process.Start(new ProcessStartInfo(path, item.Arguments) { UseShellExecute = true });
+            return new(shortcutProcess, shortcutProcess != null && item.LaunchBehavior == "waitForExit", false);
+        }
         if (!Path.GetExtension(path).Equals(".exe", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("EXE 入口只能指向 .exe 程序");
+            throw new InvalidDataException("本地程序入口只能指向 .exe 程序或 .lnk 快捷方式");
         var existing = item.ReuseExisting ? await Task.Run(() => FindExisting(path)) : null;
         if (existing != null)
         {

@@ -38,7 +38,7 @@ public sealed class UpdateService : ObservableObject, IDisposable
     public bool CanCheck => !Busy;
     public bool CanDownload => !Busy && _candidate != null && !_ready;
     public bool CanInstall => !Busy && _ready && CanInstallHere;
-    public string Size => _candidate == null ? "" : $"完整安装包 · {_candidate.Manifest.Size / 1048576d:F1} MB";
+    public string Size => _candidate == null ? "" : FormattableString.Invariant($"完整安装包 · {_candidate.Manifest.Size / 1048576d:F1} MiB");
     public string LastChecked => _preferences.LastAttempt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "尚未检查";
     public bool Automatic
     {

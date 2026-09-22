@@ -9,6 +9,9 @@ internal static class Program
     private static void Main(string[] args)
     {
         var application = new Application();
+        var contextIndex = Array.IndexOf(args, "--context-file");
+        if (contextIndex >= 0 && contextIndex + 1 < args.Length)
+            System.IO.File.WriteAllText(args[contextIndex + 1], System.Text.Json.JsonSerializer.Serialize(new { Directory = Environment.CurrentDirectory, Arguments = args }));
         var window = new Window { Title="PTBox 生命周期测试程序", Width=650, Height=340, WindowStartupLocation=WindowStartupLocation.CenterScreen };
         var close = new Button { Content="测试程序 · Enter 或点击关闭，返回首页", FontSize=24, Margin=new Thickness(24) };
         close.Click += (_, _) => window.Close();

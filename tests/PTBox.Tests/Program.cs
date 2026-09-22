@@ -193,6 +193,7 @@ internal static class Program
             });
             if (args.Length > 0)
             {
+                Test("桌面快捷方式：真实启动、参数、工作目录、图标与 URL 校验", () => ShortcutTests.Run(args[0], root).GetAwaiter().GetResult());
                 Test("更新父进程身份：真实进程、路径、启动时间与版本", () => UpdateTests.ParentIdentityAsync(args[0], root).GetAwaiter().GetResult());
                 Test("真实进程启动、复用、退出等待", () => TestLifecycle(args[0], root).GetAwaiter().GetResult());
             }

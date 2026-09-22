@@ -1,6 +1,6 @@
 ; Build with scripts/package.ps1. Always package a clean publish, never the personal portable folder.
 #ifndef AppVersion
-  #define AppVersion "1.1.2"
+  #define AppVersion "1.1.3"
 #endif
 #ifndef PublishDir
   #error PublishDir is required (clean self-contained publish directory).

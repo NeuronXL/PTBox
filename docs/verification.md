@@ -1,5 +1,13 @@
 # MVP 验证记录
 
+## 1.1.3：桌面快捷方式
+
+- 文件选择器支持 EXE / LNK / URL，新增公共桌面入口；真实 WPF 对话框验证快捷方式进入草稿、错误地址保持窗口打开，以及图片选择不受影响。
+- 在独立临时目录创建真实 Windows 快捷方式，启动测试程序，验证带引号的中文参数和工作目录均保留；导入、保存和读取图标不会运行目标程序。
+- 验证 LNK 图标、配置往返、已删除快捷方式错误，以及 UTF-16 游戏 URL、网页查询参数和无效协议处理。
+- 图标提取使用 [SHGetFileInfoW](https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetfileinfow)，在后台线程初始化 COM，复制后释放图标句柄。
+- LNK 由 Windows 处理，默认直接打开；特殊商店应用和第三方游戏启动器尚未逐一实机验收。
+
 ## 1.1.2 升级测试版发布前复核
 
 - 版本提升后执行 `scripts/test.ps1`：Release 构建 0 警告、0 错误，26 组全部通过；功能及配置格式未变更。

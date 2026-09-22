@@ -9,7 +9,7 @@ public sealed class SettingsViewModel : ObservableObject
     public ObservableCollection<LauncherItem> Apps { get; }
     private readonly string _dataDirectory;
     public string DataDirectory => _dataDirectory;
-    public KeyValuePair<string,string>[] Types { get; } = [new("exe","Windows 程序"), new("url","网页链接"), new("uri","应用协议")];
+    public KeyValuePair<string,string>[] Types { get; } = [new("exe","程序 / 快捷方式"), new("url","网页链接"), new("uri","应用协议")];
     public KeyValuePair<string,string>[] Behaviors { get; } = [new("waitForExit","退出应用后返回首页"), new("fireAndForget","仅打开应用，手动返回")];
     public KeyValuePair<string,string>[] Themes { get; } = [new("Midnight","午夜蓝"), new("Charcoal","深炭灰")];
     public KeyValuePair<string,string>[] Categories { get; } =

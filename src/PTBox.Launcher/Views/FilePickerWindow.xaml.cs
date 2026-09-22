@@ -3,20 +3,25 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using PTBox.Launcher.ViewModels;
+using PTBox.Launcher.Models;
+using PTBox.Launcher.Services;
 
 namespace PTBox.Launcher.Views;
 
 public partial class FilePickerWindow : Window
 {
     public string? SelectedPath { get; private set; }
+    public LauncherItem? SelectedApp { get; private set; }
+    private readonly bool _images;
     private readonly FilePickerViewModel _vm;
     private bool _updatingDrive;
     public FilePickerWindow(bool images,string? initialPath=null)
     {
         InitializeComponent();
-        _vm=new(images ? [".png",".jpg",".jpeg",".bmp",".ico"] : [".exe"]); DataContext=_vm;
+        _images=images;
+        _vm=new(images ? [".png",".jpg",".jpeg",".bmp",".ico"] : [".exe",".lnk",".url"]); DataContext=_vm;
         Heading.Text=images ? "选择图片" : "选择程序";
-        FilterHint.Text=images ? "图标或壁纸 · PNG / JPG / BMP / ICO" : "选择应用的 EXE 文件，也可以直接粘贴路径。";
+        FilterHint.Text=images ? "图标或壁纸 · PNG / JPG / BMP / ICO" : "支持 EXE、LNK、URL；桌面上找不到时，可查看公共桌面。";
         Drives.ItemsSource=Directory.GetLogicalDrives();
         _vm.PropertyChanged += (_,e) =>
         {
@@ -27,7 +32,8 @@ public partial class FilePickerWindow : Window
         };
         var scale=Math.Min(1,Math.Min(SystemParameters.WorkArea.Width*.95/1140,SystemParameters.WorkArea.Height*.95/760));
         Width=1140*scale; Height=760*scale;
-        var start=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var start=Environment.GetFolderPath(images ? Environment.SpecialFolder.UserProfile : Environment.SpecialFolder.DesktopDirectory);
+        if (!Directory.Exists(start)) start=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         try
         {
             var expanded=Environment.ExpandEnvironmentVariables(initialPath ?? "");
@@ -57,7 +63,14 @@ public partial class FilePickerWindow : Window
         if(string.IsNullOrWhiteSpace(FilePath.Text) && FileList.SelectedItem is FilePickerEntry { IsDirectory:true } directory)
         { await _vm.NavigateAsync(directory.Path); return; }
         var file=_vm.SelectFile(FilePath.Text);
-        if(file!=null) { SelectedPath=file; DialogResult=true; }
+        if(file==null) return;
+        try
+        {
+            if (!_images) SelectedApp=AppLaunchService.FromLocalFile(file);
+            SelectedPath=file; DialogResult=true;
+        }
+        catch(Exception ex) when(ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        { _vm.Status=ex.Message; }
     }
     private void Cancel(object sender,RoutedEventArgs e) => DialogResult=false;
     private void OnKeyDown(object sender,KeyEventArgs e)

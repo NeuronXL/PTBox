@@ -21,6 +21,10 @@ internal static class FilePickerTests
         await vm.NavigateAsync(Path.Combine(folder,"missing")); Check(vm.DirectoryPath==folder && vm.CanBrowse && vm.Status.Contains("无法打开"),"失败后保留可用目录");
         var images=new FilePickerViewModel([".png",".jpg"]); await images.NavigateAsync(folder);
         Check(images.Entries.Count==2 && images.SelectFile("背景.png")!=null && images.SelectFile("程序.EXE")==null,"图片模式过滤");
+        ShortcutTests.CreateShortcut(Path.Combine(folder,"桌面程序.LNK"),Path.Combine(folder,"程序.EXE"));
+        await File.WriteAllTextAsync(Path.Combine(folder,"游戏.URL"),"[InternetShortcut]\nURL=steam://rungameid/123\n");
+        var apps=new FilePickerViewModel([".exe",".lnk",".url"]); await apps.NavigateAsync(folder);
+        Check(apps.Entries.Count==4 && apps.SelectFile("桌面程序.LNK")!=null && apps.SelectFile("游戏.URL")!=null,"应用选择器接受快捷方式，扩展名大小写不敏感");
     }
     private static void Check(bool result,string message) { if(!result) throw new InvalidOperationException(message); }
 }

@@ -1,6 +1,6 @@
 # PTBox 发布更新：实现与操作
 
-当前版本为 1.1.2 升级测试版，源码与更新源固定为 `NeuronXL/PTBox`。1.1.1 已于 2026-09-22 发布并通过真实 GitHub 更新查询、签名与安装包下载校验；1.1.2 用于验证已安装的 1.1.1 自动升级。真实跨版本安装升级仍待干净 Windows 环境验收。
+当前版本为 1.1.3，源码与更新源固定为 `NeuronXL/PTBox`。1.1.1 和 1.1.2 已通过真实 GitHub 更新查询、签名与安装包下载校验，用户反馈可完成 1.1.2 更新。1.1.3 新增桌面快捷方式支持并修正大小显示；干净 Windows 环境升级及失败恢复仍待专门验收。
 
 ## 客户端行为
 
@@ -60,7 +60,7 @@ HTTP 403 只有存在限流证据（剩余额度为 0、Retry-After 或 GitHub J
 准备 `docs/releases/<version>.md` 后，在项目根目录运行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Version 1.1.2
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Version 1.1.3
 # 已对当前源码单独完成测试时，可显式加 -SkipTests。
 ```
 

@@ -104,7 +104,17 @@ public partial class SettingsWindow : Window
     {
         if (_vm.Selected == null) return;
         var dialog = Picker(false, _vm.Selected.Path);
-        if (dialog.ShowDialog() == true) { _vm.Selected.Path = dialog.SelectedPath!; _vm.Selected.Type = "exe"; _vm.RefreshSelected(); }
+        if (dialog.ShowDialog() == true && dialog.SelectedApp is { } selected)
+        {
+            _vm.Selected.Path = selected.Path; _vm.Selected.Type = selected.Type;
+            if (!string.Equals(Path.GetExtension(dialog.SelectedPath), ".exe", StringComparison.OrdinalIgnoreCase))
+            {
+                _vm.Selected.Arguments = selected.Arguments;
+                _vm.Selected.ReuseExisting = selected.ReuseExisting;
+                _vm.Selected.LaunchBehavior = selected.LaunchBehavior;
+            }
+            _vm.RefreshSelected();
+        }
     }
     private FilePickerWindow Picker(bool images, string? initial)
     {
