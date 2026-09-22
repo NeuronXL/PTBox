@@ -110,6 +110,8 @@ public partial class SettingsWindow : Window
             if (!string.Equals(Path.GetExtension(dialog.SelectedPath), ".exe", StringComparison.OrdinalIgnoreCase))
             {
                 _vm.Selected.Arguments = selected.Arguments;
+                _vm.Selected.WorkingDirectory = selected.WorkingDirectory;
+                _vm.Selected.RunAsAdministrator = selected.RunAsAdministrator;
                 _vm.Selected.ReuseExisting = selected.ReuseExisting;
                 _vm.Selected.LaunchBehavior = selected.LaunchBehavior;
             }
@@ -118,7 +120,7 @@ public partial class SettingsWindow : Window
     }
     private FilePickerWindow Picker(bool images, string? initial)
     {
-        try { if (!string.IsNullOrWhiteSpace(initial)) initial = images ? PathService.ResolveAsset(initial, _dataDirectory) : PathService.ResolveExecutable(initial, _dataDirectory); }
+        try { if (!string.IsNullOrWhiteSpace(initial)) initial = PathService.ResolveAsset(initial, _dataDirectory); }
         catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException or UnauthorizedAccessException) { initial = null; }
         return new FilePickerWindow(images, initial) { Owner = this };
     }

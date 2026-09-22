@@ -4,12 +4,12 @@
   <Viewbox><ContentControl Width="1140" Height="760" Style="{StaticResource DialogFrame}"><Grid>
     <Grid.RowDefinitions><RowDefinition Height="78"/><RowDefinition Height="76"/><RowDefinition Height="*"/><RowDefinition Height="32"/><RowDefinition Height="72"/><RowDefinition Height="66"/></Grid.RowDefinitions>
     <StackPanel><TextBlock x:Name="Heading" Style="{StaticResource DialogHeading}"/><TextBlock x:Name="FilterHint" Style="{StaticResource DialogDescription}" Margin="0,8,0,0"/></StackPanel>
-    <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition Width="*"/><ColumnDefinition Width="96"/></Grid.ColumnDefinitions>
+    <Grid x:Name="FolderNavigation" Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition Width="*"/><ColumnDefinition Width="96"/></Grid.ColumnDefinitions>
       <Button x:Name="UpButton" Content="↑ 上一级" Click="Up" Padding="8" Margin="0,8,12,12"/>
       <TextBox x:Name="FolderPath" Grid.Column="1" Text="{Binding DirectoryPath, Mode=OneWay}" Margin="0,8,12,12" AutomationProperties.Name="文件夹路径"/>
       <Button Grid.Column="2" Content="前往" Click="Go" Padding="8" Margin="0,8,0,12"/>
     </Grid>
-    <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="194"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Grid x:Name="BrowserArea" Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="194"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
       <Border Background="#75172638" CornerRadius="18" Padding="12"><StackPanel>
         <StackPanel.Resources><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Height" Value="36"/><Setter Property="MinHeight" Value="36"/><Setter Property="Padding" Value="4"/><Setter Property="Margin" Value="2"/><Setter Property="FontSize" Value="18"/></Style></StackPanel.Resources>
         <TextBlock Text="常用位置" FontSize="18" Foreground="#AFC1D3" Margin="8,2,0,8"/>
@@ -23,7 +23,7 @@
       </StackPanel></Border>
       <Border Grid.Column="2" Background="#A0111D2C" CornerRadius="18" Padding="14"><Grid><Grid.RowDefinitions><RowDefinition Height="64"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid Margin="0,0,0,10"><TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" ToolTip="筛选当前文件夹中的名称" AutomationProperties.Name="筛选文件名" Margin="0"/><TextBlock Text="筛选文件名…" FontSize="20" Margin="18,0" VerticalAlignment="Center" Foreground="#8195AB" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Search}" Value=""><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></Grid>
-        <ListBox x:Name="FileList" Grid.Row="1" ItemsSource="{Binding Entries}" IsEnabled="{Binding CanBrowse}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource AppListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="FileSelected" MouseDoubleClick="OpenSelected">
+        <ListBox x:Name="FileList" Grid.Row="1" ItemsSource="{Binding Entries}" IsEnabled="{Binding CanBrowse}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource AppListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionChanged="FileSelected" MouseDoubleClick="OpenSelected">
           <ListBox.ItemTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="74"/></Grid.ColumnDefinitions><TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="23" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="20" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Column="2" Text="{Binding Kind}" FontSize="14" Foreground="#AFC1D3" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid></DataTemplate></ListBox.ItemTemplate>
         </ListBox>
       </Grid></Border>

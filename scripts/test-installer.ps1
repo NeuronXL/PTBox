@@ -1,4 +1,4 @@
-param([string]$Installer = '', [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.3')
+param([string]$Installer = '', [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.4')
 $ErrorActionPreference = 'Stop'
 $packageRoot = Split-Path $PSScriptRoot -Parent
 if (!$Installer) { $Installer = Join-Path $packageRoot "artifacts\installer\PTBox-Setup-$Version-win-x64.exe" }

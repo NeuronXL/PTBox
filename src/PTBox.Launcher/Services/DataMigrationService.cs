@@ -54,6 +54,8 @@ public static class DataMigrationService
             var path = Environment.ExpandEnvironmentVariables(app.Path);
             if (app.Type == "exe" && !string.IsNullOrWhiteSpace(path) && !Path.IsPathRooted(path) && (path.Contains('/') || path.Contains('\\')))
                 app.Path = Path.GetFullPath(path, installation);
+            if (!string.IsNullOrWhiteSpace(app.WorkingDirectory))
+                app.WorkingDirectory = Path.GetFullPath(Environment.ExpandEnvironmentVariables(app.WorkingDirectory), installation);
         }
         ConfigService.Validate(config);
         new ConfigService(userDirectory, new LoggingService(userDirectory)).Save(config);

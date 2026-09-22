@@ -2,7 +2,7 @@
 
 面向 Windows 11 电视、飞鼠和键鼠的轻量启动器。使用 C# / .NET 8 / WPF，支持 x64，无第三方 NuGet 依赖、服务器或数据库。游戏库由 Steam / Playnite 管理，PTBox 负责应用入口、导航与返回首页。
 
-**当前版本：1.1.3** · [下载最新版](https://github.com/NeuronXL/PTBox/releases/latest) · [版本记录](CHANGELOG.md)
+**当前版本：1.1.4** · [下载最新版](https://github.com/NeuronXL/PTBox/releases/latest) · [版本记录](CHANGELOG.md)
 
 ![PTBox 首页](docs/screenshots/home-steam-moonlight.png)
 
@@ -10,13 +10,15 @@
 
 在 [GitHub Releases](https://github.com/NeuronXL/PTBox/releases) 下载：
 
-- `PTBox-Setup-1.1.3-win-x64.exe`：安装包，包含运行环境，无需安装 .NET。默认安装到 `%LOCALAPPDATA%\Programs\PTBox`，无需管理员权限。
-- `PTBox-1.1.3-win-x64-portable.zip`：解压完整目录，双击 `PTBox.Launcher.exe`。
+- `PTBox-Setup-1.1.4-win-x64.exe`：安装包，包含运行环境，无需安装 .NET。默认安装到 `%LOCALAPPDATA%\Programs\PTBox`，无需管理员权限。
+- `PTBox-1.1.4-win-x64-portable.zip`：解压完整目录，双击 `PTBox.Launcher.exe`。
 - 对应的 `.sha256` 文件：用于核对下载文件。
 
 首次启动全屏显示空应用列表，选择“添加应用”开始配置。Steam 和 Moonlight 是可选模板，不会自动安装或添加。默认不开启登录自动启动。
 
-选择“添加应用 → 本地程序 / 桌面快捷方式”，可从“桌面”或“公共桌面”选择 `.lnk`，也可选择网页或游戏的 `.url`。LNK 保留原快捷方式路径，由 Windows 按原参数和工作目录打开，因此添加后请保留该快捷方式；默认直接打开，不等待退出或强制复用进程。
+选择“添加应用 → 本地程序 / 桌面快捷方式”，可从“桌面”或“公共桌面”选择 `.lnk`，也可选择网页或游戏的 `.url`。LNK 会导入实际 EXE、参数、工作目录和管理员运行标志，使用 EXE 原图标；添加完成后不再依赖原快捷方式。
+
+1.1.3 已添加的入口可在设置中重新浏览选择一次快捷方式并保存，无需删除重建；已丢失的快捷方式需要重新选择程序。无法解析为 EXE 的特殊商店快捷方式会提示改选程序或应用协议。
 
 安装版数据保存在 `%LOCALAPPDATA%\PTBox`，首次启动会备份并迁移旧安装目录的配置；发生冲突时提供选择。便携版优先使用程序目录，无法写入时回退到个人目录。卸载保留个人数据。
 

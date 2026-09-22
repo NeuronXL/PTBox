@@ -184,13 +184,14 @@ internal static class UpdateTests
     {
         var old = Path.Combine(root, "migration-old"); var target = Path.Combine(root, "migration-user");
         Directory.CreateDirectory(Path.Combine(old, "images")); File.WriteAllText(Path.Combine(old, "images", "wall.png"), "fixture");
-        var config = new LauncherConfig { Background = "images/wall.png", Theme = "Charcoal", Apps = [new() { Id = "custom", Name = "我的应用", Icon = "images/wall.png", Path = "tools/app.exe" }] };
+        var config = new LauncherConfig { Background = "images/wall.png", Theme = "Charcoal", Apps = [new() { Id = "custom", Name = "我的应用", Icon = "images/wall.png", Path = "tools/app.exe", WorkingDirectory = "tools", RunAsAdministrator = true }] };
         var legacy = new ConfigService(old, new(old)); legacy.Save(config); var original = File.ReadAllBytes(legacy.ConfigPath);
         Check(!DataMigrationService.IsInstalled(old), "无标记为便携模式"); File.WriteAllText(Path.Combine(old, "ptbox.install"), DataMigrationService.AppId);
         Check(DataMigrationService.IsInstalled(old), "明确安装标记");
         DataMigrationService.Migrate(old, target, (_, _) => throw new Exception("fresh migration should not conflict"));
         var migrated = new ConfigService(target, new(target)).Load(); Check(migrated.Apps.Single().Name == "我的应用" && migrated.Theme == "Charcoal", "配置完整迁移");
         Check(File.Exists(migrated.Background) && migrated.Background.StartsWith(target) && Path.IsPathFullyQualified(migrated.Apps[0].Path), "相对资源和程序路径保留语义");
+        Check(migrated.Apps[0].WorkingDirectory == Path.Combine(old,"tools") && migrated.Apps[0].RunAsAdministrator, "迁移保留快捷方式的工作目录及管理员标志");
         Check(original.SequenceEqual(File.ReadAllBytes(legacy.ConfigPath)), "原始配置保持原样");
         migrated.Apps[0].Name = "迁移后修改"; new ConfigService(target, new(target)).Save(migrated);
         DataMigrationService.Migrate(old, target, (_, _) => true);

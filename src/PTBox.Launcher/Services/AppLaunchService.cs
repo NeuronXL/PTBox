@@ -16,11 +16,7 @@ public sealed class AppLaunchService(string dataDirectory, LoggingService log)
         var item = new LauncherItem { Name = Path.GetFileNameWithoutExtension(path), Path = path, Category = "apps" };
         if (extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) return item;
         if (extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase))
-        {
-            // Let Windows preserve the shortcut's arguments, working directory and shell target.
-            item.ReuseExisting = false; item.LaunchBehavior = "fireAndForget";
-            return item;
-        }
+            return ShortcutService.Resolve(path);
         if (!extension.Equals(".url", StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("请选择 EXE 程序或 LNK / URL 快捷方式。");
         if (new FileInfo(path).Length > 1024 * 1024) throw new InvalidDataException("快捷方式文件过大，请重新选择。");
@@ -50,9 +46,10 @@ public sealed class AppLaunchService(string dataDirectory, LoggingService log)
         var path = PathService.ResolveExecutable(item.Path, dataDirectory);
         if (Path.GetExtension(path).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
         {
-            // Shell links can open packaged apps or hand off to an existing process without returning a process.
-            var shortcutProcess = Process.Start(new ProcessStartInfo(path, item.Arguments) { UseShellExecute = true });
-            return new(shortcutProcess, shortcutProcess != null && item.LaunchBehavior == "waitForExit", false);
+            var resolved = await Task.Run(() => ShortcutService.Resolve(path)).WaitAsync(TimeSpan.FromSeconds(10));
+            resolved.LaunchBehavior = item.LaunchBehavior; resolved.ReuseExisting = item.ReuseExisting;
+            if (!string.IsNullOrWhiteSpace(item.Arguments)) resolved.Arguments = item.Arguments;
+            return await LaunchAsync(resolved);
         }
         if (!Path.GetExtension(path).Equals(".exe", StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("本地程序入口只能指向 .exe 程序或 .lnk 快捷方式");
@@ -68,7 +65,9 @@ public sealed class AppLaunchService(string dataDirectory, LoggingService log)
         }
         var process = Process.Start(new ProcessStartInfo(path, item.Arguments)
         {
-            UseShellExecute = true, WorkingDirectory = Path.GetDirectoryName(path)!
+            UseShellExecute = true,
+            WorkingDirectory = string.IsNullOrWhiteSpace(item.WorkingDirectory) ? Path.GetDirectoryName(path)! : PathService.ResolveAsset(item.WorkingDirectory, dataDirectory),
+            Verb = item.RunAsAdministrator ? "runas" : ""
         }) ?? throw new InvalidOperationException("Windows 未返回启动进程");
         return new(process, item.LaunchBehavior == "waitForExit", false);
     }

@@ -87,7 +87,7 @@ public sealed class ConfigService(string dataDirectory, LoggingService log)
             if (string.IsNullOrWhiteSpace(app.Name)) throw new InvalidDataException("应用名称不能为空");
             if (app.Type is not ("exe" or "url" or "uri")) throw new InvalidDataException($"{app.Name}：类型应为 exe / url / uri");
             if (app.LaunchBehavior is not ("waitForExit" or "fireAndForget")) throw new InvalidDataException("无效的启动行为");
-            app.Subtitle ??= ""; app.Path ??= ""; app.Arguments ??= ""; app.Icon ??= ""; app.Accent ??= "#234B58";
+            app.Subtitle ??= ""; app.Path ??= ""; app.Arguments ??= ""; app.WorkingDirectory ??= ""; app.Icon ??= ""; app.Accent ??= "#234B58";
             if (app.Category is not ("auto" or "games" or "streaming" or "media" or "apps")) app.Category = "auto";
             if (app.Type != "exe" && app.LaunchBehavior == "waitForExit")
                 app.LaunchBehavior = "fireAndForget";

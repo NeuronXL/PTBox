@@ -1,4 +1,5 @@
 using System.IO;
+using System.Diagnostics;
 using PTBox.Launcher.ViewModels;
 
 namespace PTBox.Tests;
@@ -25,6 +26,17 @@ internal static class FilePickerTests
         await File.WriteAllTextAsync(Path.Combine(folder,"游戏.URL"),"[InternetShortcut]\nURL=steam://rungameid/123\n");
         var apps=new FilePickerViewModel([".exe",".lnk",".url"]); await apps.NavigateAsync(folder);
         Check(apps.Entries.Count==4 && apps.SelectFile("桌面程序.LNK")!=null && apps.SelectFile("游戏.URL")!=null,"应用选择器接受快捷方式，扩展名大小写不敏感");
+        var large=Path.Combine(root,"large-picker"); Directory.CreateDirectory(large);
+        for(var i=0;i<3000;i++) File.WriteAllText(Path.Combine(large,$"entry-{i:D4}.lnk"),"not parsed while browsing");
+        var changes=0; apps.Entries.CollectionChanged+=(_,_)=>changes++;
+        var timer=Stopwatch.StartNew(); await apps.NavigateAsync(large); timer.Stop();
+        Check(apps.Entries.Count==3000 && changes==1,"大量文件只批量通知一次，不解析目录内快捷方式");
+        Console.WriteLine($"File picker: 3000 entries in {timer.ElapsedMilliseconds} ms; {changes} list refresh.");
+        var first=apps.NavigateAsync(large); var latest=apps.NavigateAsync(folder);
+        await Task.WhenAll(first,latest);
+        Check(apps.DirectoryPath==folder && apps.Entries.Count==4 && !apps.IsBusy,"取消过时扫描，旧结果不能覆盖新目录");
+        var stopped=apps.NavigateAsync(large); apps.Stop(); await stopped;
+        Check(apps.DirectoryPath==folder && !apps.IsBusy,"关闭选择器时停止扫描且不更新已关闭的列表");
     }
     private static void Check(bool result,string message) { if(!result) throw new InvalidOperationException(message); }
 }

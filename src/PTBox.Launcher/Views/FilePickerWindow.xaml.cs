@@ -15,6 +15,8 @@ public partial class FilePickerWindow : Window
     private readonly bool _images;
     private readonly FilePickerViewModel _vm;
     private bool _updatingDrive;
+    private bool _selecting, _closed;
+    private readonly CancellationTokenSource _lifetime = new();
     public FilePickerWindow(bool images,string? initialPath=null)
     {
         InitializeComponent();
@@ -32,18 +34,31 @@ public partial class FilePickerWindow : Window
         };
         var scale=Math.Min(1,Math.Min(SystemParameters.WorkArea.Width*.95/1140,SystemParameters.WorkArea.Height*.95/760));
         Width=1140*scale; Height=760*scale;
-        var start=Environment.GetFolderPath(images ? Environment.SpecialFolder.UserProfile : Environment.SpecialFolder.DesktopDirectory);
-        if (!Directory.Exists(start)) start=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        try
-        {
-            var expanded=Environment.ExpandEnvironmentVariables(initialPath ?? "");
-            if(Directory.Exists(expanded)) start=expanded;
-            else if(File.Exists(expanded)) { start=Path.GetDirectoryName(Path.GetFullPath(expanded))!; FilePath.Text=Path.GetFullPath(expanded); }
-        }
-        catch(ArgumentException) { }
         var initialized=false;
-        Loaded += async (_,_) => { if(initialized) return; initialized=true; await _vm.NavigateAsync(start); FileList.Focus(); };
-        Closed += (_,_) => _vm.Stop();
+        Loaded += async (_,_) =>
+        {
+            if(initialized) return; initialized=true;
+            var start=Environment.GetFolderPath(images ? Environment.SpecialFolder.UserProfile : Environment.SpecialFolder.DesktopDirectory,Environment.SpecialFolderOption.DoNotVerify);
+            if(start.Length==0) start=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile,Environment.SpecialFolderOption.DoNotVerify);
+            // Initial-path probing may access disconnected drives, so keep it off the dispatcher too.
+            if(!string.IsNullOrWhiteSpace(initialPath))
+            {
+                try
+                {
+                    var initial=await Task.Run(() =>
+                    {
+                        var expanded=Environment.ExpandEnvironmentVariables(initialPath);
+                        return Directory.Exists(expanded) ? (Folder:expanded,File:"") : File.Exists(expanded) ? (Folder:Path.GetDirectoryName(Path.GetFullPath(expanded))!,File:Path.GetFullPath(expanded)) : (Folder:start,File:"");
+                    }).WaitAsync(TimeSpan.FromSeconds(3),_lifetime.Token);
+                    start=initial.Folder; FilePath.Text=initial.File;
+                }
+                catch(OperationCanceledException) { return; }
+                catch(Exception ex) when(ex is ArgumentException or IOException or UnauthorizedAccessException or TimeoutException) { }
+            }
+            if(_closed || _vm.DirectoryPath.Length>0 || _vm.IsBusy) return;
+            await _vm.NavigateAsync(start); if(!_closed) FileList.Focus();
+        };
+        Closed += (_,_) => { _closed=true; _lifetime.Cancel(); _lifetime.Dispose(); _vm.Stop(); };
     }
     private async void Go(object sender,RoutedEventArgs e) => await _vm.NavigateAsync(FolderPath.Text);
     private async void Up(object sender,RoutedEventArgs e)
@@ -51,7 +66,7 @@ public partial class FilePickerWindow : Window
     private async void Shortcut(object sender,RoutedEventArgs e)
     {
         if(sender is Button { Tag:string folder } && Enum.TryParse<Environment.SpecialFolder>(folder,out var location))
-        { var path=Environment.GetFolderPath(location); if(path.Length>0) await _vm.NavigateAsync(path); }
+        { var path=Environment.GetFolderPath(location,Environment.SpecialFolderOption.DoNotVerify); if(path.Length>0) await _vm.NavigateAsync(path); }
     }
     private async void DriveSelected(object sender,SelectionChangedEventArgs e)
     { if(!_updatingDrive && Drives.SelectedItem is string drive) await _vm.NavigateAsync(drive); }
@@ -60,17 +75,30 @@ public partial class FilePickerWindow : Window
     private void OpenSelected(object sender,MouseButtonEventArgs e) { if(FileList.SelectedItem!=null) Accept(sender,e); }
     private async void Accept(object sender,RoutedEventArgs e)
     {
+        if(_selecting || _vm.IsBusy || _closed) return;
         if(string.IsNullOrWhiteSpace(FilePath.Text) && FileList.SelectedItem is FilePickerEntry { IsDirectory:true } directory)
         { await _vm.NavigateAsync(directory.Path); return; }
-        var file=_vm.SelectFile(FilePath.Text);
-        if(file==null) return;
+        _selecting=true; SelectButton.IsEnabled=false; FolderNavigation.IsEnabled=false; BrowserArea.IsEnabled=false; FilePath.IsEnabled=false;
+        using var selection=CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        selection.CancelAfter(TimeSpan.FromSeconds(10));
         try
         {
-            if (!_images) SelectedApp=AppLaunchService.FromLocalFile(file);
+            var file=await _vm.SelectFileAsync(FilePath.Text,selection.Token);
+            if(file==null || _closed) return;
+            _vm.Status=_images ? "正在读取文件…" : "正在读取程序或快捷方式…";
+            var app = _images ? null : await Task.Run(()=>AppLaunchService.FromLocalFile(file),selection.Token).WaitAsync(selection.Token);
+            if(_closed) return;
+            SelectedApp=app;
             SelectedPath=file; DialogResult=true;
         }
+        catch(OperationCanceledException) { if(!_closed) _vm.Status="读取超时，请检查文件是否在可访问的本地目录，或重新选择。"; }
         catch(Exception ex) when(ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        { _vm.Status=ex.Message; }
+        { if(!_closed) _vm.Status=ex.Message; }
+        finally
+        {
+            _selecting=false;
+            if(!_closed) { SelectButton.IsEnabled=true; FolderNavigation.IsEnabled=true; BrowserArea.IsEnabled=true; FilePath.IsEnabled=true; }
+        }
     }
     private void Cancel(object sender,RoutedEventArgs e) => DialogResult=false;
     private void OnKeyDown(object sender,KeyEventArgs e)

@@ -1,5 +1,5 @@
 param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.3',
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.4',
     [string]$NotesFile = '',
     [string]$PrivateKey = '',
     [switch]$SkipTests

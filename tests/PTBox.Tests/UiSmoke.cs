@@ -314,6 +314,7 @@ internal static class UiSmoke
                         var path=(TextBox)picker.FindName("FilePath");
                         var invalid=Path.Combine(folder,"invalid.URL"); File.WriteAllText(invalid,"[InternetShortcut]\nURL=javascript:alert(1)");
                         path.Text=invalid; ((Button)picker.FindName("SelectButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                        PumpUntil(()=>((Button)picker.FindName("SelectButton")).IsEnabled,TimeSpan.FromSeconds(5));
                         Assert(picker.IsVisible && picker.SelectedApp==null && vm.Status.Contains("不支持"),"无效快捷方式应留在选择器并显示错误");
                         path.Text=Path.Combine(folder,name); path.Focus(); Key(picker,System.Windows.Input.Key.Enter);
                     }
@@ -324,7 +325,7 @@ internal static class UiSmoke
             }));
             var accepted=shortcutAdd.ShowDialog(); if(error!=null) throw error;
             Assert(accepted==true && shortcutAdd.Result?.Name==Path.GetFileNameWithoutExtension(name),"快捷方式名称应进入添加草稿");
-            Assert(shortcutAdd.Result!.Path==(name.EndsWith(".LNK") ? Path.Combine(folder,name) : "steam://rungameid/123"),"正确保存快捷方式路径或游戏协议");
+            Assert(shortcutAdd.Result!.Path==(name.EndsWith(".LNK") ? Path.Combine(folder,"程序.EXE") : "steam://rungameid/123"),"正确保存实际 EXE 或游戏协议");
         }
 
         var images=new FilePickerWindow(true,folder) { Owner=owner };
@@ -332,7 +333,7 @@ internal static class UiSmoke
         {
             try
             {
-                var vm=(FilePickerViewModel)images.DataContext; PumpUntil(()=>!vm.IsBusy,TimeSpan.FromSeconds(5));
+                var vm=(FilePickerViewModel)images.DataContext; PumpUntil(()=>vm.DirectoryPath==folder && !vm.IsBusy,TimeSpan.FromSeconds(5));
                 Assert(vm.Entries.Any(x=>x.Name=="背景.png") && !vm.Entries.Any(x=>x.Name=="程序.EXE"),"图片选择器只显示图片与目录");
                 var drives=(ComboBox)images.FindName("Drives"); drives.Focus(); Key(images,System.Windows.Input.Key.Enter); Pump();
                 Assert(drives.IsDropDownOpen,"文件选择器磁盘菜单可通过确认键展开");
@@ -343,6 +344,24 @@ internal static class UiSmoke
         }));
         var canceled=images.ShowDialog(); if(error!=null) throw error;
         Assert(canceled==false && images.SelectedPath==null,"返回取消图片选择，不产生修改");
+
+        var largeFolder=Path.Combine(root,"large-picker");
+        var largePicker=new FilePickerWindow(false,largeFolder) { Owner=owner };
+        Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(() =>
+        {
+            try
+            {
+                var vm=(FilePickerViewModel)largePicker.DataContext;
+                PumpUntil(()=>vm.DirectoryPath==largeFolder && !vm.IsBusy,TimeSpan.FromSeconds(5)); Pump();
+                var list=(ListBox)largePicker.FindName("FileList");
+                Assert(list.Items.Count==3000 && Descendants(list).OfType<ListBoxItem>().Count()<100,"大量文件只创建可见行，避免全量布局卡顿");
+                list.ScrollIntoView(list.Items[2999]); Pump();
+                Assert(list.ItemContainerGenerator.ContainerFromIndex(2999)!=null,"虚拟化列表仍可滚动至最后一项");
+                ((Button)largePicker.FindName("CancelButton")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            }
+            catch(Exception ex) { error=ex; largePicker.Close(); }
+        }));
+        largePicker.ShowDialog(); if(error!=null) throw error;
     }
     private static void RenderWindowContent(Window window, string file, int width, int height)
     {

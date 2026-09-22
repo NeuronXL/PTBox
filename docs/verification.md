@@ -1,5 +1,14 @@
 # MVP 验证记录
 
+## 1.1.4：快捷方式解析与文件选择性能
+
+- 使用 Windows `IShellLinkW` 读取保存的 EXE、参数和工作目录，使用 `IShellLinkDataList` 保留运行标志；不调用会搜索磁盘或网络的 `Resolve`。参考 [IShellLinkW](https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishelllinkw) 和 [Shell link flags](https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/ne-shlobj_core-shell_link_data_flags)。
+- 真实测试删除 LNK 后保存、重载配置并启动目标 EXE，中文参数和工作目录均保留；管理员标志只验证读取及保存，没有执行提权。
+- 图标直接来自 EXE；以独立的快捷方式自定义图标验证不会读取 Shell 角标。损坏、目标不存在、文件夹等不支持的快捷方式显示错误。
+- 使用目录枚举缓存的属性，一次批量刷新列表；3,000 个临时文件在本机约 4 毫秒完成枚举和排序，不解析列表中的 LNK。此结果不代表用户网络盘或同步目录的实际延迟。
+- 切换目录和关闭窗口取消过时扫描；路径检查和选中项解析在后台进行，并限制等待时间。真实 WPF 测试覆盖异步导入和错误提示。
+- 1.1.3 的旧 LNK 入口仍兼容解析启动；在设置重新选择一次并保存后，配置才改为独立 EXE 路径。
+
 ## 1.1.3：桌面快捷方式
 
 - 文件选择器支持 EXE / LNK / URL，新增公共桌面入口；真实 WPF 对话框验证快捷方式进入草稿、错误地址保持窗口打开，以及图片选择不受影响。

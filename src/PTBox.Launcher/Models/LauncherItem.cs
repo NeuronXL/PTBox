@@ -10,6 +10,8 @@ public sealed class LauncherItem
     public string Type { get; set; } = "exe";
     public string Path { get; set; } = "";
     public string Arguments { get; set; } = "";
+    public string WorkingDirectory { get; set; } = "";
+    public bool RunAsAdministrator { get; set; }
     public string LaunchBehavior { get; set; } = "waitForExit";
     public bool ReuseExisting { get; set; } = true;
     public string Accent { get; set; } = "#234B58";
