@@ -1,4 +1,4 @@
-param([ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.1')
+param([ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '1.1.2')
 . "$PSScriptRoot\common.ps1"
 $compiler = Join-Path $projectRoot '.tools\inno-6.7.3\ISCC.exe'
 if (!(Test-Path -LiteralPath $compiler)) { & "$PSScriptRoot\setup-installer.ps1" }

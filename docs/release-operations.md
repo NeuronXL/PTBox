@@ -1,6 +1,6 @@
-# PTBox 1.1.1 发布更新：实现与操作
+# PTBox 发布更新：实现与操作
 
-当前版本为 1.1.1，源码与更新源固定为 `NeuronXL/PTBox`。2026-09-22 已获准初始化 Git、上传源码并发布。源码已重新构建并通过 26 组测试；本次使用归档的 1.1.1 签名安装包，另从源码构建便携 ZIP。真实跨版本安装升级仍待干净 Windows 环境验收。
+当前版本为 1.1.2 升级测试版，源码与更新源固定为 `NeuronXL/PTBox`。1.1.1 已于 2026-09-22 发布并通过真实 GitHub 更新查询、签名与安装包下载校验；1.1.2 用于验证已安装的 1.1.1 自动升级。真实跨版本安装升级仍待干净 Windows 环境验收。
 
 ## 客户端行为
 
@@ -60,7 +60,7 @@ HTTP 403 只有存在限流证据（剩余额度为 0、Retry-After 或 GitHub J
 准备 `docs/releases/<version>.md` 后，在项目根目录运行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Version 1.1.1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Version 1.1.2
 # 已对当前源码单独完成测试时，可显式加 -SkipTests。
 ```
 
@@ -76,7 +76,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Version
 
 渲染图位于 `artifacts/verification/settings-updates.png`、`settings-update-available.png` 和 `settings-update-ready-portable.png`。1.2.0 是本地测试数据，不是线上版本。
 
-本机已有 PTBox 开始菜单目录，安装测试被保护规则阻止；Windows Sandbox 未安装。因此未执行实际安装升级，也未进行 GitHub 真实发布下载。不能用单元测试替代这些验收。
+本机已有 PTBox 开始菜单目录，安装测试被保护规则阻止；Windows Sandbox 未安装。因此未执行实际安装升级。1.1.1 已完成 GitHub 真实发布下载验证，安装与跨版本升级仍须实机验收。
 
 准备两个本地签名版本（例如 1.1.0 和 1.1.1）后：
 

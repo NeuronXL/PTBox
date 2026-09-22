@@ -2,7 +2,7 @@
 
 面向 Windows 11 电视、飞鼠和键鼠的轻量启动器。使用 C# / .NET 8 / WPF，支持 x64，无第三方 NuGet 依赖、服务器或数据库。游戏库由 Steam / Playnite 管理，PTBox 负责应用入口、导航与返回首页。
 
-**当前版本：1.1.1** · [下载最新版](https://github.com/NeuronXL/PTBox/releases/latest) · [版本记录](CHANGELOG.md)
+**当前版本：1.1.2（升级测试版）** · [下载最新版](https://github.com/NeuronXL/PTBox/releases/latest) · [版本记录](CHANGELOG.md)
 
 ![PTBox 首页](docs/screenshots/home-steam-moonlight.png)
 
@@ -10,8 +10,8 @@
 
 在 [GitHub Releases](https://github.com/NeuronXL/PTBox/releases) 下载：
 
-- `PTBox-Setup-1.1.1-win-x64.exe`：安装包，包含运行环境，无需安装 .NET。默认安装到 `%LOCALAPPDATA%\Programs\PTBox`，无需管理员权限。
-- `PTBox-1.1.1-win-x64-portable.zip`：解压完整目录，双击 `PTBox.Launcher.exe`。
+- `PTBox-Setup-1.1.2-win-x64.exe`：安装包，包含运行环境，无需安装 .NET。默认安装到 `%LOCALAPPDATA%\Programs\PTBox`，无需管理员权限。
+- `PTBox-1.1.2-win-x64-portable.zip`：解压完整目录，双击 `PTBox.Launcher.exe`。
 - 对应的 `.sha256` 文件：用于核对下载文件。
 
 首次启动全屏显示空应用列表，选择“添加应用”开始配置。Steam 和 Moonlight 是可选模板，不会自动安装或添加。默认不开启登录自动启动。
