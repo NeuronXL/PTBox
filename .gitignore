@@ -1,0 +1,16 @@
+.tools/
+artifacts/
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+*.private.pem
+*.key
+*.pfx
+*.pem
+*.private.bin
+.env
+.env.*
+Logs/
+Cache/

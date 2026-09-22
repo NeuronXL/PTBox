@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF><ApplicationManifest>..\PTBox.Launcher\app.manifest</ApplicationManifest><ApplicationIcon>..\PTBox.Launcher\Assets\Brand\ptbox.ico</ApplicationIcon></PropertyGroup>
+  <ItemGroup><ProjectReference Include="..\PTBox.UpdateCore\PTBox.UpdateCore.csproj" /><Page Include="..\PTBox.Launcher\Views\SettingsStyles.xaml" Link="SettingsStyles.xaml" /></ItemGroup>
+</Project>

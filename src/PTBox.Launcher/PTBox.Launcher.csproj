@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>PTBox.Launcher</AssemblyName>
+    <RootNamespace>PTBox.Launcher</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Brand\ptbox.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PTBox.UpdateCore\PTBox.UpdateCore.csproj" />
+    <Resource Include="Assets\Artwork\*.png" />
+    <Resource Include="Assets\Brand\ptbox.ico" />
+    <Content Include="Config\config.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets\README.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

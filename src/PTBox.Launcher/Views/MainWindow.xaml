@@ -1,0 +1,61 @@
+<Window x:Class="PTBox.Launcher.Views.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="PTBox · 客厅首页" Width="1280" Height="760" MinWidth="800" MinHeight="450" WindowStyle="None" ResizeMode="NoResize" WindowState="Maximized" Background="{Binding BackgroundBrush}" PreviewKeyDown="OnKeyDown" Activated="OnActivated" Closing="OnClosing" SourceInitialized="OnSourceInitialized">
+  <Window.Style><StaticResource ResourceKey="{x:Type Window}"/></Window.Style>
+  <Window.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="HomeStyles.xaml"/></ResourceDictionary.MergedDictionaries>
+    <ItemsPanelTemplate x:Key="HorizontalPanel"><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+    <DataTemplate x:Key="SmallAction"><Button Style="{StaticResource HomeButton}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="22" VerticalAlignment="Center" Margin="0,0,12,0"/><TextBlock Text="{Binding Name}" FontSize="18"/></StackPanel></Button></DataTemplate>
+  </ResourceDictionary></Window.Resources>
+  <Viewbox Stretch="Uniform">
+    <Grid Width="1600" Height="900" Background="{Binding BackgroundBrush}">
+      <Border Background="{Binding HeroBackground}"/>
+      <Border Background="{Binding ThemeShade}" IsHitTestVisible="False"/>
+      <Border><Border.Background><LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5"><GradientStop Color="#E80A111A" Offset="0"/><GradientStop Color="#770A111A" Offset="0.4"/><GradientStop Color="#080A111A" Offset="1"/></LinearGradientBrush></Border.Background></Border>
+      <Border><Border.Background><LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1"><GradientStop Color="#1A0A1118" Offset="0"/><GradientStop Color="#000A1118" Offset="0.28"/><GradientStop Color="#C00A1118" Offset="0.55"/><GradientStop Color="#FA0A1118" Offset="0.77"/><GradientStop Color="#FF0A1118" Offset="1"/></LinearGradientBrush></Border.Background></Border>
+      <Grid Margin="52,20">
+        <Grid.RowDefinitions><RowDefinition Height="76"/><RowDefinition Height="294"/><RowDefinition Height="40"/><RowDefinition Height="186"/><RowDefinition Height="46"/><RowDefinition Height="124"/><RowDefinition Height="*"/><RowDefinition Height="56"/></Grid.RowDefinitions>
+        <Grid>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,8,0,0">
+            <TextBlock Text="PTBox" FontFamily="Segoe UI" FontWeight="Bold" FontSize="30" VerticalAlignment="Center" Margin="0,0,34,0"/>
+            <ItemsControl x:Name="TabItems" ItemsSource="{Binding Tabs}" ItemsPanel="{StaticResource HorizontalPanel}"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource TabButton}" Content="{Binding Name}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,0,0">
+            <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="23" VerticalAlignment="Center" Margin="0,0,20,0" ToolTip="Windows 客厅 PC"/>
+            <ItemsControl x:Name="TopActionItems" ItemsSource="{Binding TopActions}" ItemsPanel="{StaticResource HorizontalPanel}"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource HomeButton}" Padding="12" ToolTip="设置" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"><TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="24"/></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <Border Width="37" Height="37" CornerRadius="19" Background="#DCE7F4" Margin="14,0,20,0"><TextBlock Text="P" FontFamily="Segoe UI" Foreground="#243A54" FontWeight="Bold" FontSize="23" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+            <TextBlock Text="{Binding Clock}" FontFamily="Segoe UI" FontSize="32" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
+          <StackPanel Margin="3,13,0,0">
+            <TextBlock Text="客厅 PC" FontSize="21" Foreground="#B6C1CD"/>
+            <TextBlock Text="{Binding HeroTitle}" FontSize="58" FontWeight="Bold" Margin="0,3,0,0"/>
+            <TextBlock Text="{Binding HeroSubtitle}" FontSize="24" Foreground="#E0E5EC" Margin="0,9,0,0"/>
+            <ItemsControl x:Name="HeroItems" ItemsSource="{Binding HeroActions}" ItemsPanel="{StaticResource HorizontalPanel}" Margin="0,24,0,0"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource HeroButton}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="20" VerticalAlignment="Center" Margin="0,0,14,0"/><TextBlock Text="{Binding Name}" FontSize="21" FontWeight="SemiBold"/></StackPanel></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          </StackPanel>
+          <ItemsControl x:Name="PageItems" ItemsSource="{Binding HeroPages}" ItemsPanel="{StaticResource HorizontalPanel}" VerticalAlignment="Bottom" Margin="0,0,0,13"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource PageDot}" ToolTip="{Binding Name}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </Grid>
+        <Grid Grid.Row="2" Margin="4,0">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock Text="{Binding SectionHeading}" FontSize="25" FontWeight="SemiBold"/><TextBlock Text="{Binding CardCountLabel}" FontSize="16" Foreground="#A5B4C5" VerticalAlignment="Center" Margin="18,0,0,0"/></StackPanel>
+          <ItemsControl x:Name="SectionItems" ItemsSource="{Binding SectionActions}" ItemsPanel="{StaticResource HorizontalPanel}" HorizontalAlignment="Right"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource HomeButton}" Padding="12,4" Margin="0" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"><TextBlock Text="全部应用 →" FontSize="18"/></Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </Grid>
+        <Grid Grid.Row="3" Margin="-7,0">
+          <ScrollViewer x:Name="CardScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" Focusable="False" PanningMode="HorizontalOnly" PreviewMouseWheel="OnCardWheel">
+            <ItemsControl x:Name="CardItems" ItemsSource="{Binding AppTiles}" ItemsPanel="{StaticResource HorizontalPanel}"><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource ArtCard}" ToolTip="{Binding Name}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          </ScrollViewer>
+          <TextBlock Text="把喜欢的应用放到这里。选择左侧卡片开始添加。" FontSize="25" Foreground="#B9C8D7" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="240,0,0,0" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsEmpty}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+        </Grid>
+        <TextBlock Grid.Row="4" Text="快捷入口" FontSize="25" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0"/>
+        <ItemsControl x:Name="QuickItems" Grid.Row="5" ItemsSource="{Binding QuickLinks}" Margin="-6,0"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate><Button Style="{StaticResource QuickCard}" Click="OnTileClick" GotKeyboardFocus="OnTileFocus"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        <TextBlock Grid.Row="6" Text="{Binding Status}" FontSize="16" Foreground="#C8D8E8" VerticalAlignment="Center" Margin="6,0" TextTrimming="CharacterEllipsis"/>
+        <Grid Grid.Row="7">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="3,0,0,0">
+            <Image Source="{StaticResource DPadIcon}" Width="30" Height="30" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock Text="方向键  选择" FontSize="17" Foreground="#CAD3DF" VerticalAlignment="Center"/>
+            <Border BorderBrush="#CAD3DF" BorderThickness="1.5" CornerRadius="15" Padding="4" Margin="26,0,8,0"><TextBlock Text="OK" FontSize="13"/></Border><TextBlock Text="打开" FontSize="17" Foreground="#CAD3DF" VerticalAlignment="Center"/>
+            <TextBlock Text="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="21" VerticalAlignment="Center" Margin="26,0,8,0"/><TextBlock Text="返回  首页" FontSize="17" Foreground="#CAD3DF" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ItemsControl x:Name="FooterItems" ItemsSource="{Binding Footer}" ItemsPanel="{StaticResource HorizontalPanel}" ItemTemplate="{StaticResource SmallAction}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Viewbox>
+</Window>

@@ -1,0 +1,14 @@
+<Window x:Class="PTBox.Launcher.Views.PowerMenuWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="PTBox · 电源" Width="530" Height="560" WindowStartupLocation="CenterOwner" PreviewKeyDown="OnKeyDown">
+  <Window.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="DialogStyles.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Window.Resources>
+  <Window.Style><StaticResource ResourceKey="DialogWindow"/></Window.Style>
+  <Viewbox Stretch="Uniform"><ContentControl Width="530" Height="560" Style="{StaticResource DialogFrame}">
+    <StackPanel><TextBlock Text="电源与退出" Style="{StaticResource DialogHeading}"/><TextBlock Text="随时回到你的 Windows。" Style="{StaticResource DialogDescription}" Margin="0,10,0,24"/>
+      <Button x:Name="CancelButton" Content="返回首页" Height="66" Click="Cancel" Style="{StaticResource PrimaryButton}"/>
+      <Button x:Name="ShutdownButton" Content="关机" Height="66" Tag="Shutdown" Click="Choose"/>
+      <Button x:Name="RestartButton" Content="重新启动" Height="66" Tag="Restart" Click="Choose"/>
+      <Button x:Name="ExitButton" Content="退出 Launcher" Height="66" Tag="Exit" Click="Choose"/>
+      <TextBlock Text="关机和重启会再次确认" FontSize="17" Foreground="#AFBFCE" Margin="6,14,0,14"/>
+      <ContentControl Style="{StaticResource DialogHint}"/>
+    </StackPanel>
+  </ContentControl></Viewbox>
+</Window>

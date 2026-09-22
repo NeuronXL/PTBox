@@ -1,0 +1,126 @@
+<Window x:Class="PTBox.Launcher.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:PTBox.Launcher.Views" xmlns:services="clr-namespace:PTBox.Launcher.Services" Title="PTBox · 设置" Width="1440" Height="810" WindowStyle="None" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="NoResize" PreviewKeyDown="OnKeyDown" Style="{StaticResource {x:Type Window}}">
+  <Window.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="SettingsStyles.xaml"/></ResourceDictionary.MergedDictionaries>
+    <BooleanToVisibilityConverter x:Key="VisibleWhenTrue"/><views:AppArtworkConverter x:Key="AppArtwork"/>
+    <Style x:Key="FieldLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="18"/><Setter Property="Foreground" Value="#CBD5E2"/></Style>
+    <Style x:Key="GlassPanel" TargetType="Border"><Setter Property="CornerRadius" Value="24"/><Setter Property="Background" Value="#D0111E2D"/><Setter Property="BorderBrush" Value="#33597088"/><Setter Property="BorderThickness" Value="1"/></Style>
+  </ResourceDictionary></Window.Resources>
+  <Viewbox Stretch="Uniform"><Grid Width="1600" Height="900" Background="#0A111A">
+    <Image Source="{x:Static services:ArtworkService.Hero}" Stretch="UniformToFill" Opacity="0.5"/>
+    <Border><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#DD0B1521" Offset="0"/><GradientStop Color="#B50B1624" Offset="0.55"/><GradientStop Color="#F509111B" Offset="1"/></LinearGradientBrush></Border.Background></Border>
+    <Grid Margin="48,28">
+      <Grid.RowDefinitions><RowDefinition Height="112"/><RowDefinition Height="*"/><RowDefinition Height="32"/><RowDefinition Height="80"/></Grid.RowDefinitions>
+      <Grid>
+        <StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="PTBox" FontSize="20" FontFamily="Segoe UI" FontWeight="Bold" Foreground="#C1CDDA"/><TextBlock Text=" /  你的客厅" FontSize="17" Foreground="#94A5B8" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel><TextBlock Text="设置" FontSize="40" FontWeight="SemiBold" Margin="0,10,0,0"/></StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,10"><Button x:Name="AppsTab" Style="{StaticResource SettingsTab}" Tag="apps" Content="应用管理" Click="ShowApps"/><Button x:Name="SystemTab" Style="{StaticResource SettingsTab}" Tag="system" Content="首页与系统" Click="ShowSystem"/><Button x:Name="UpdatesTab" Style="{StaticResource SettingsTab}" Tag="updates" Content="关于与更新" Click="ShowUpdates"/></StackPanel>
+      </Grid>
+      <Grid x:Name="AppsPanel" Grid.Row="1" Visibility="{Binding IsAppsPage, Converter={StaticResource VisibleWhenTrue}}">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="330"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Border Style="{StaticResource GlassPanel}" Padding="16,18,16,14">
+          <Grid><Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="*"/><RowDefinition Height="70"/><RowDefinition Height="62"/></Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="8,0"><TextBlock Text="我的应用" FontSize="23" FontWeight="SemiBold"/><TextBlock Text="{Binding Apps.Count, StringFormat={}  ·  {0}}" FontSize="17" Foreground="#98ACBF" VerticalAlignment="Center"/></StackPanel>
+            <ListBox x:Name="AppList" Grid.Row="1" ItemsSource="{Binding Apps}" SelectedItem="{Binding Selected}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{StaticResource AppListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" KeyboardNavigation.DirectionalNavigation="Continue" SelectionChanged="OnSelectedAppChanged">
+              <ListBox.ItemTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="58"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="48" Height="48" CornerRadius="10" Background="#1A2737"><Border.DataContext><MultiBinding Converter="{StaticResource AppArtwork}"><Binding/><Binding Path="DataContext.DataDirectory" RelativeSource="{RelativeSource AncestorType=ListBox}"/></MultiBinding></Border.DataContext><Grid><Image Source="{Binding DisplayIcon}" Width="34" Height="34"/><TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="27" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding DisplayIcon}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></Grid></Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0"><TextBlock Text="{Binding Name}" FontSize="21" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Subtitle}" FontSize="13" Foreground="#A6B9CC" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/></StackPanel>
+              </Grid></DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+            <UniformGrid Grid.Row="2" Columns="2" Margin="0,7,0,0"><Button Content="↑ 上移" Click="MoveUp" IsEnabled="{Binding HasSelection}" Padding="6"/><Button Content="↓ 下移" Click="MoveDown" IsEnabled="{Binding HasSelection}" Padding="6"/></UniformGrid>
+            <UniformGrid Grid.Row="3" Columns="2"><Button Content="＋ 添加" Click="AddItem" Padding="6"/><Button Content="移除" Click="RemoveItem" IsEnabled="{Binding HasSelection}" Padding="6"/></UniformGrid>
+          </Grid>
+        </Border>
+        <Border Grid.Column="2" Style="{StaticResource GlassPanel}" Padding="28,22">
+          <Grid>
+            <Grid IsEnabled="{Binding HasSelection}"><Grid.RowDefinitions><RowDefinition Height="96"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="92"/><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
+                <Border DataContext="{Binding Preview}" Background="{Binding Artwork}" CornerRadius="15" Width="72" Height="72" HorizontalAlignment="Left" VerticalAlignment="Top"><Grid>
+                  <Border CornerRadius="15" Background="#35071019"/>
+                  <TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="31" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding DisplayIcon}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                  <Image Source="{Binding DisplayIcon}" Width="42" Height="42"/>
+                </Grid></Border>
+                <StackPanel Grid.Column="1"><TextBlock Text="{Binding Preview.Name}" FontSize="28" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="调整这个入口的打开方式" FontSize="17" Foreground="#A4B7C9" Margin="0,8,0,0"/></StackPanel>
+                <Button Grid.Column="2" Content="更换图标" Click="BrowseIcon" VerticalAlignment="Top" Margin="0,6,0,0"/>
+              </Grid>
+              <ScrollViewer x:Name="EditorScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,14,0" Focusable="False">
+                <StackPanel>
+                  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Text="卡片名称" Style="{StaticResource FieldLabel}"/><TextBox x:Name="AppName" Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}" LostKeyboardFocus="RefreshList" AutomationProperties.Name="卡片名称"/></StackPanel>
+                    <StackPanel Grid.Column="2"><TextBlock Text="副标题" Style="{StaticResource FieldLabel}"/><TextBox Text="{Binding Selected.Subtitle, UpdateSourceTrigger=PropertyChanged}" LostKeyboardFocus="RefreshList" AutomationProperties.Name="副标题"/></StackPanel>
+                  </Grid>
+                  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Text="入口类型" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="TypePicker" ItemsSource="{Binding Types}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Selected.Type}" AutomationProperties.Name="入口类型"/></StackPanel>
+                    <StackPanel Grid.Column="2"><TextBlock Text="应用分类" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="CategoryPicker" ItemsSource="{Binding Categories}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Selected.Category}" AutomationProperties.Name="应用分类"/></StackPanel>
+                  </Grid>
+                  <TextBlock Text="程序路径或网址" Style="{StaticResource FieldLabel}"/>
+                  <DockPanel LastChildFill="True"><Button DockPanel.Dock="Right" Content="浏览…" Click="BrowseExe" Width="126" VerticalAlignment="Top" Margin="14,8,0,18"><Button.Style><Style TargetType="Button" BasedOn="{StaticResource SettingsButton}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedValue, ElementName=TypePicker}" Value="exe"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Button.Style></Button><TextBox x:Name="AppPath" TextChanged="OnAddressChanged" Text="{Binding Selected.Path, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="程序路径"/></DockPanel>
+                  <TextBlock Text="启动参数" Style="{StaticResource FieldLabel}"/><TextBox Text="{Binding Selected.Arguments, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="启动参数" ToolTip="例如 --app=https://www.bilibili.com"/>
+                  <TextBlock Text="启动后" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="BehaviorPicker" ItemsSource="{Binding Behaviors}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Selected.LaunchBehavior}" AutomationProperties.Name="启动后行为"/>
+                  <CheckBox Content="已运行时切换到现有窗口" IsChecked="{Binding Selected.ReuseExisting}" Margin="0,0,0,16"/>
+                  <TextBlock Text="自定义图标路径" Style="{StaticResource FieldLabel}"/><TextBox Text="{Binding Selected.Icon, UpdateSourceTrigger=PropertyChanged}" LostKeyboardFocus="RefreshList" AutomationProperties.Name="图标路径"/>
+                  <TextBlock Text="图标留空时读取程序或网站原图标，读取失败时使用通用图标。网页图标联网获取并缓存在本机。" FontSize="16" Foreground="#9DB1C4" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+            <TextBlock Text="先添加一个应用，打造你的客厅首页。" FontSize="25" Foreground="#BBC9D8" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasSelection}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+          </Grid>
+        </Border>
+      </Grid>
+      <Grid x:Name="SystemPanel" Grid.Row="1" Visibility="{Binding IsSystemPage, Converter={StaticResource VisibleWhenTrue}}">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="0.9*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="1.1*"/></Grid.ColumnDefinitions>
+        <StackPanel>
+          <Border Style="{StaticResource GlassPanel}" Padding="24,22" Margin="0,0,0,20"><StackPanel>
+            <TextBlock Text="启动与返回" FontSize="25" FontWeight="SemiBold" Margin="8,0,0,20"/>
+            <CheckBox x:Name="AutoStartToggle" IsChecked="{Binding Draft.AutoStart}"><StackPanel><TextBlock Text="登录后自动启动" FontSize="22"/><TextBlock Text="打开电脑，就回到客厅首页" FontSize="16" Foreground="#A6B8CA" Margin="0,7,0,0"/></StackPanel></CheckBox>
+            <Border Height="1" Background="#284B6279" Margin="14,12"/>
+            <CheckBox x:Name="FullscreenToggle" IsChecked="{Binding Draft.StartFullscreen}"><StackPanel><TextBlock Text="启动时进入全屏" FontSize="22"/><TextBlock Text="也可以按 F11 临时切换" FontSize="16" Foreground="#A6B8CA" Margin="0,7,0,0"/></StackPanel></CheckBox>
+          </StackPanel></Border>
+          <Border Style="{StaticResource GlassPanel}" Padding="30,24"><StackPanel>
+            <TextBlock Text="外观" FontSize="25" FontWeight="SemiBold" Margin="0,0,0,10"/>
+            <TextBlock Text="选择首页的明暗氛围" FontSize="17" Foreground="#A6B8CA" Margin="0,0,0,12"/>
+            <ComboBox x:Name="ThemePicker" ItemsSource="{Binding Themes}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding Draft.Theme}" AutomationProperties.Name="主题"/>
+            <TextBlock Text="Ctrl + Alt + H  随时返回首页" FontSize="18" Foreground="#D6E1ED" Margin="0,8,0,2"/>
+            <TextBlock Text="再次运行 Launcher 也可以唤回当前窗口" FontSize="16" Foreground="#91A6BC" Margin="0,8,0,0"/>
+          </StackPanel></Border>
+        </StackPanel>
+        <Border Grid.Column="2" Style="{StaticResource GlassPanel}" Padding="28,24"><Grid><Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="230"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <TextBlock Text="背景壁纸" FontSize="25" FontWeight="SemiBold"/>
+          <Border Grid.Row="1" CornerRadius="17" BorderBrush="#425F7891" BorderThickness="1"><Border.Background><ImageBrush x:Name="BackgroundPreview" Stretch="UniformToFill"/></Border.Background><Grid><Border Background="#40101B28" CornerRadius="16"/><StackPanel VerticalAlignment="Bottom" Margin="24"><TextBlock Text="让客厅，有你的风格。" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="YOUR SPACE" FontSize="12" FontFamily="Segoe UI" Foreground="#D4DDE8" Margin="0,8,0,0"/></StackPanel></Grid></Border>
+          <StackPanel Grid.Row="2" Margin="0,24,0,0">
+            <TextBlock Text="本地图片路径" Style="{StaticResource FieldLabel}"/><TextBox x:Name="BackgroundPath" Text="{Binding Draft.Background, UpdateSourceTrigger=PropertyChanged}" LostKeyboardFocus="RefreshBackground" AutomationProperties.Name="背景图片路径"/>
+            <StackPanel Orientation="Horizontal"><Button Content="选择图片" Click="BrowseBackground" Margin="0,0,12,0"/><Button Content="恢复默认" Click="ResetBackground" Margin="0"/></StackPanel>
+            <TextBlock Text="留空时使用内置山景。图片只保存在本机。" FontSize="16" Foreground="#A6B8CA" Margin="0,20,0,12"/>
+            <TextBlock x:Name="DataPath" FontSize="12" Foreground="#8096AD" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Grid></Border>
+      </Grid>
+      <Border Grid.Row="1" Style="{StaticResource GlassPanel}" Padding="32" Visibility="{Binding IsUpdatePage, Converter={StaticResource VisibleWhenTrue}}">
+        <Grid x:Name="UpdatePanel"><Grid.ColumnDefinitions><ColumnDefinition Width="410"/><ColumnDefinition Width="32"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <StackPanel>
+            <TextBlock Text="PTBox" FontSize="40" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding CurrentVersion, StringFormat=当前版本  {0}}" FontSize="23" Margin="0,14,0,8"/>
+            <TextBlock Text="{Binding InstallMode}" FontSize="17" Foreground="#A6B8CA" TextWrapping="Wrap" Margin="0,0,0,22"/>
+            <CheckBox x:Name="AutoUpdateToggle" Content="自动检查更新" IsChecked="{Binding Automatic}"/>
+            <TextBlock Text="每天检查一次，由你决定下载和安装时间。此开关立即生效。" FontSize="17" Foreground="#A6B8CA" TextWrapping="Wrap" Margin="14,4,14,16"/>
+            <TextBlock Text="{Binding LastChecked, StringFormat=上次检查  {0}}" FontSize="16" Foreground="#A6B8CA" Margin="14,0,0,16"/>
+            <Button x:Name="CheckUpdateButton" Content="检查更新" Click="CheckUpdate" IsEnabled="{Binding CanCheck}" Style="{StaticResource PrimaryButton}"/>
+            <Button Content="查看 GitHub Releases" Click="OpenReleases"/>
+            <Button Content="打开下载目录" Click="OpenDownloads"/>
+          </StackPanel>
+          <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <StackPanel><TextBlock Text="{Binding Latest, StringFormat=可用版本  {0}}" FontSize="26" FontWeight="SemiBold"/><TextBlock Text="{Binding Size}" FontSize="17" Foreground="#A6B8CA" Margin="0,8,0,16"/></StackPanel>
+            <ScrollViewer x:Name="ReleaseNotesScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="True" Margin="0,0,0,16"><TextBlock Text="{Binding Notes}" TextWrapping="Wrap" FontSize="20" Foreground="#CBD5E2"/></ScrollViewer>
+            <StackPanel Grid.Row="2">
+              <TextBlock Text="{Binding Status}" TextWrapping="Wrap" FontSize="18" Foreground="#D9E5F3" Margin="0,0,0,12"/>
+              <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="8" Margin="0,0,0,16" Foreground="#BCD5EE" Background="#263B50"/>
+              <WrapPanel><Button Content="下载更新" Click="DownloadUpdate" IsEnabled="{Binding CanDownload}"/><Button Content="取消下载 / 检查" Click="CancelUpdate" IsEnabled="{Binding Busy}"/><Button Content="重启 PTBox 更新" Click="InstallUpdate" IsEnabled="{Binding CanInstall}" Style="{StaticResource PrimaryButton}"/></WrapPanel>
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </Border>
+      <TextBlock x:Name="Status" Grid.Row="2" Foreground="#FFD8A8" FontSize="17" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0"/>
+      <Grid Grid.Row="3"><StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
+        <Image Source="{StaticResource DPadIcon}" Width="30" Height="30" Margin="0,0,10,0"/><TextBlock Text="方向键  切换" FontSize="17" Foreground="#C1CDDA" VerticalAlignment="Center"/>
+        <Border BorderBrush="#C1CDDA" BorderThickness="1.5" CornerRadius="15" Padding="4" Margin="24,0,8,0"><TextBlock Text="OK" FontSize="13"/></Border><TextBlock Text="确认" FontSize="17" Foreground="#C1CDDA" VerticalAlignment="Center"/>
+        <TextBlock Text="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="21" VerticalAlignment="Center" Margin="24,0,8,0"/><TextBlock Text="返回  取消" FontSize="17" Foreground="#C1CDDA" VerticalAlignment="Center"/>
+      </StackPanel><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button x:Name="CancelButton" Content="取消 / 返回" Width="180" Click="Cancel" Margin="0,0,14,0"/><Button x:Name="SaveButton" Content="保存设置" Width="192" Click="Save" Style="{StaticResource PrimaryButton}" Margin="0"/></StackPanel></Grid>
+    </Grid>
+  </Grid></Viewbox>
+</Window>

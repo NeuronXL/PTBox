@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "apps": [
+    {
+      "icon": "",
+      "type": "exe",
+      "arguments": "",
+      "launchBehavior": "waitForExit",
+      "reuseExisting": true,
+      "id": "playnite",
+      "name": "游戏",
+      "subtitle": "PLAYNITE",
+      "path": "%LOCALAPPDATA%\\Playnite\\Playnite.FullscreenApp.exe",
+      "accent": "#314862"
+    },
+    {
+      "icon": "",
+      "type": "exe",
+      "arguments": "",
+      "launchBehavior": "waitForExit",
+      "reuseExisting": true,
+      "id": "moonlight",
+      "name": "串流",
+      "subtitle": "MOONLIGHT",
+      "path": "%ProgramFiles%\\Moonlight Game Streaming\\Moonlight.exe",
+      "accent": "#205955"
+    },
+    {
+      "icon": "",
+      "type": "exe",
+      "arguments": "--app=https://www.bilibili.com",
+      "launchBehavior": "fireAndForget",
+      "reuseExisting": false,
+      "id": "bilibili",
+      "name": "哔哩哔哩",
+      "subtitle": "BILIBILI",
+      "path": "msedge.exe",
+      "accent": "#664454"
+    },
+    {
+      "icon": "",
+      "type": "uri",
+      "arguments": "",
+      "launchBehavior": "fireAndForget",
+      "reuseExisting": true,
+      "id": "steam",
+      "name": "Steam",
+      "subtitle": "BIG PICTURE",
+      "path": "steam://open/bigpicture",
+      "accent": "#35465C"
+    },
+    {
+      "icon": "",
+      "type": "uri",
+      "arguments": "",
+      "launchBehavior": "fireAndForget",
+      "reuseExisting": true,
+      "id": "video",
+      "name": "影视",
+      "subtitle": "YOUR MOVIE NIGHT",
+      "path": "mswindowsvideo:",
+      "accent": "#675239"
+    },
+    {
+      "icon": "",
+      "type": "exe",
+      "arguments": "",
+      "launchBehavior": "fireAndForget",
+      "reuseExisting": false,
+      "id": "edge",
+      "name": "浏览器",
+      "subtitle": "MICROSOFT EDGE",
+      "path": "msedge.exe",
+      "accent": "#24596A"
+    },
+    {
+      "icon": "",
+      "type": "exe",
+      "arguments": "",
+      "launchBehavior": "fireAndForget",
+      "reuseExisting": false,
+      "id": "files",
+      "name": "文件",
+      "subtitle": "EXPLORER",
+      "path": "explorer.exe",
+      "accent": "#5B5941"
+    }
+  ],
+  "lastSelectedTile": "playnite",
+  "autoStart": false,
+  "startFullscreen": true,
+  "theme": "Midnight",
+  "background": ""
+}
